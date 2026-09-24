@@ -1,0 +1,35 @@
+name: Inspect exact-site payload
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-final-payload.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/final-site-payload.part* | tr -d '\n\r ' | base64 -d > /tmp/payload.gz
+          echo "Compressed:"
+          file /tmp/payload.gz
+          ls -lh /tmp/payload.gz
+          gzip -t /tmp/payload.gz
+          gzip -dc /tmp/payload.gz > /tmp/payload
+          echo "Unpacked:"
+          file /tmp/payload
+          ls -lh /tmp/payload
+          echo "First bytes:"
+          xxd -l 64 /tmp/payload
+          if tar -tf /tmp/payload >/tmp/list 2>/dev/null; then
+            echo "TAR CONTENTS:"
+            cat /tmp/list
+          else
+            echo "NOT TAR"
+            head -c 500 /tmp/payload | sed 's/[^[:print:]\t]/./g'
+          fi
