@@ -11,11 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download exact public source assets
+      - name: Download exact public source images through WordPress image cache
         shell: bash
         run: |
           set -euo pipefail
-          base='https://britishlasers.com'
           assets=(
             '/wp-content/uploads/2017/02/laser-hair-removal-for-salons-680x383.jpg'
             '/wp-content/uploads/2017/02/which-laser-hair-removal-machine-is-best-680x383.jpg'
@@ -36,22 +35,18 @@ jobs:
             '/wp-content/uploads/repairs-servicing-laser-machines-icon.webp'
             '/wp-content/uploads/safety-goggles-icon.webp'
             '/wp-content/uploads/sell-my-laser-icon.webp'
-            '/wp-content/uploads/videos/nu-erays-plus-clinic-landscape-1.mp4'
-            '/wp-content/uploads/videos/nu-tatouage-plus-clinic-landscape-2.mp4'
-            '/wp-content/uploads/videos/nu-trilaze-lite-clinic-landscape-1.mp4'
-            '/wp-content/uploads/videos/nu-trilaze-plus-clinic-landscape-1.mp4'
           )
           for path in "${assets[@]}"; do
             mkdir -p ".$(dirname "$path")"
             echo "Fetching $path"
-            curl -A 'Mozilla/5.0' -fL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 180 "$base$path" -o ".$path"
+            curl -A 'Mozilla/5.0' -fL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 180 "https://i0.wp.com/britishlasers.com$path?quality=100&strip=all" -o ".$path"
           done
-      - name: Commit localized assets
+      - name: Commit localized images
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add wp-content
           git diff --cached --quiet && exit 0
-          git commit -m 'Localize exact British Lasers source media [skip ci]'
+          git commit -m 'Localize exact British Lasers source images [skip ci]'
           git push
