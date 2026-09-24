@@ -3,9 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/final-site-payload.part00'
-      - '.github/final-site-payload.part01'
-      - '.github/final-site-payload.part02'
+      - '.github/final-site-payload.part12'
 permissions:
   contents: write
 jobs:
@@ -17,10 +15,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .github/final-site-payload.part00 .github/final-site-payload.part01 .github/final-site-payload.part02 | base64 -d > /tmp/site.tar.gz
+          cat .github/final-site-payload.part{00..12} | base64 -d > /tmp/site.tar.gz
           echo "de268126a1e1189c2c457a04690ebb1e25f637b19c5b0983e318314e005498fc  /tmp/site.tar.gz" | sha256sum -c -
           tar -xzf /tmp/site.tar.gz
-          rm -f .github/final-site-payload.part00 .github/final-site-payload.part01 .github/final-site-payload.part02
+          rm -f .github/final-site-payload.part{00..12}
           rm -f assets/brand-logo.svg assets/fallback.svg assets/favicon.svg assets/guide.svg
           rm -f assets/machine-erays.svg assets/machine-lite.svg assets/machine-plus.svg assets/machine-tatouage.svg
           rm -f assets/offline.js assets/recovery.css assets/service-icon.svg
