@@ -1,0 +1,8 @@
+(function(){
+'use strict';
+function q(s,c){return (c||document).querySelector(s)} function qa(s,c){return Array.from((c||document).querySelectorAll(s))}
+qa('.bl6_item').forEach(function(item){var btn=q('.bl6_link',item);var drop=q('.bl6_drop,.bl-nav-machines-panel',item);if(!btn||!drop)return;btn.addEventListener('click',function(e){if(btn.tagName==='BUTTON'||btn.getAttribute('href')==='#'){e.preventDefault()}var open=item.classList.contains('is-open');qa('.bl6_item.is-open').forEach(function(x){x.classList.remove('is-open')});if(!open)item.classList.add('is-open')})});
+document.addEventListener('click',function(e){if(!e.target.closest('.bl6_item'))qa('.bl6_item.is-open').forEach(function(x){x.classList.remove('is-open')})});
+var burger=q('.bl6_burger'),drawer=q('.bl6_drawer'),close=q('.bl6_drawer_close'),backdrop=q('.bl6_backdrop');function setDrawer(v){if(!drawer)return;drawer.classList.toggle('is-open',v);drawer.setAttribute('aria-hidden',v?'false':'true');document.documentElement.classList.toggle('bl6_no_scroll',v)}if(burger)burger.addEventListener('click',function(){setDrawer(true)});if(close)close.addEventListener('click',function(){setDrawer(false)});if(backdrop)backdrop.addEventListener('click',function(){setDrawer(false)});
+qa('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var t=q(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}})});
+})();
