@@ -1,52 +1,36 @@
-name: Localize British Lasers source assets
+name: Apply exact captured British Lasers build
 on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/fetch-britishlasers-assets.yml'
+      - '.github/final-site-payload.part00'
+      - '.github/final-site-payload.part01'
+      - '.github/final-site-payload.part02'
 permissions:
   contents: write
 jobs:
-  fetch:
+  apply:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download exact public source images through WordPress image cache
+      - name: Restore exact captured build
         shell: bash
         run: |
           set -euo pipefail
-          assets=(
-            '/wp-content/uploads/2017/02/laser-hair-removal-for-salons-680x383.jpg'
-            '/wp-content/uploads/2017/02/which-laser-hair-removal-machine-is-best-680x383.jpg'
-            '/wp-content/uploads/2024/11/logo-no-padding.png'
-            '/wp-content/uploads/2025/05/nu-erays-plus-transparent-product-page.webp'
-            '/wp-content/uploads/2025/06/how-to-become-a-laser-hair-removal-technician-680x383.jpg'
-            '/wp-content/uploads/2025/06/nu-tatouage-form-icon.webp'
-            '/wp-content/uploads/2025/06/nu-tatouage-plus-transparent-product-page.webp'
-            '/wp-content/uploads/2025/06/nu-trilaze-transparent-hd.webp'
-            '/wp-content/uploads/bil-logo-transparent-white.webp'
-            '/wp-content/uploads/flash-lamps-icon.webp'
-            '/wp-content/uploads/handpiece-background-icon.webp'
-            '/wp-content/uploads/integrated-handpiece-interface.webp'
-            '/wp-content/uploads/laser-protector-adviser-icon.webp'
-            '/wp-content/uploads/laser-rods-icon.webp'
-            '/wp-content/uploads/microdermabrasian-crystals-icon.webp'
-            '/wp-content/uploads/nu-trilaze-plus-white-background-side-1-2-transparent.webp'
-            '/wp-content/uploads/repairs-servicing-laser-machines-icon.webp'
-            '/wp-content/uploads/safety-goggles-icon.webp'
-            '/wp-content/uploads/sell-my-laser-icon.webp'
-          )
-          for path in "${assets[@]}"; do
-            mkdir -p ".$(dirname "$path")"
-            echo "Fetching $path"
-            curl -A 'Mozilla/5.0' -fL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 180 "https://i0.wp.com/britishlasers.com$path?quality=100&strip=all" -o ".$path"
-          done
-      - name: Commit localized images
+          cat .github/final-site-payload.part00 .github/final-site-payload.part01 .github/final-site-payload.part02 | base64 -d > /tmp/site.tar.gz
+          echo "de268126a1e1189c2c457a04690ebb1e25f637b19c5b0983e318314e005498fc  /tmp/site.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/site.tar.gz
+          rm -f .github/final-site-payload.part00 .github/final-site-payload.part01 .github/final-site-payload.part02
+          rm -f assets/brand-logo.svg assets/fallback.svg assets/favicon.svg assets/guide.svg
+          rm -f assets/machine-erays.svg assets/machine-lite.svg assets/machine-plus.svg assets/machine-tatouage.svg
+          rm -f assets/offline.js assets/recovery.css assets/service-icon.svg
+          rm -f .github/workflows/fetch-britishlasers-assets.yml
+      - name: Commit exact localized site
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add wp-content
+          git add -A
           git diff --cached --quiet && exit 0
-          git commit -m 'Localize exact British Lasers source images [skip ci]'
+          git commit -m 'Restore exact British Lasers captured site [skip ci]'
           git push
