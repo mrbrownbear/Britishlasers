@@ -1,0 +1,57 @@
+name: Localize British Lasers source assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fetch-britishlasers-assets.yml'
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact public source assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://britishlasers.com'
+          assets=(
+            '/wp-content/uploads/2017/02/laser-hair-removal-for-salons-680x383.jpg'
+            '/wp-content/uploads/2017/02/which-laser-hair-removal-machine-is-best-680x383.jpg'
+            '/wp-content/uploads/2024/11/logo-no-padding.png'
+            '/wp-content/uploads/2025/05/nu-erays-plus-transparent-product-page.webp'
+            '/wp-content/uploads/2025/06/how-to-become-a-laser-hair-removal-technician-680x383.jpg'
+            '/wp-content/uploads/2025/06/nu-tatouage-form-icon.webp'
+            '/wp-content/uploads/2025/06/nu-tatouage-plus-transparent-product-page.webp'
+            '/wp-content/uploads/2025/06/nu-trilaze-transparent-hd.webp'
+            '/wp-content/uploads/bil-logo-transparent-white.webp'
+            '/wp-content/uploads/flash-lamps-icon.webp'
+            '/wp-content/uploads/handpiece-background-icon.webp'
+            '/wp-content/uploads/integrated-handpiece-interface.webp'
+            '/wp-content/uploads/laser-protector-adviser-icon.webp'
+            '/wp-content/uploads/laser-rods-icon.webp'
+            '/wp-content/uploads/microdermabrasian-crystals-icon.webp'
+            '/wp-content/uploads/nu-trilaze-plus-white-background-side-1-2-transparent.webp'
+            '/wp-content/uploads/repairs-servicing-laser-machines-icon.webp'
+            '/wp-content/uploads/safety-goggles-icon.webp'
+            '/wp-content/uploads/sell-my-laser-icon.webp'
+            '/wp-content/uploads/videos/nu-erays-plus-clinic-landscape-1.mp4'
+            '/wp-content/uploads/videos/nu-tatouage-plus-clinic-landscape-2.mp4'
+            '/wp-content/uploads/videos/nu-trilaze-lite-clinic-landscape-1.mp4'
+            '/wp-content/uploads/videos/nu-trilaze-plus-clinic-landscape-1.mp4'
+          )
+          for path in "${assets[@]}"; do
+            mkdir -p ".$(dirname "$path")"
+            echo "Fetching $path"
+            curl -A 'Mozilla/5.0' -fL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 180 "$base$path" -o ".$path"
+          done
+      - name: Commit localized assets
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add wp-content
+          git diff --cached --quiet && exit 0
+          git commit -m 'Localize exact British Lasers source media [skip ci]'
+          git push
